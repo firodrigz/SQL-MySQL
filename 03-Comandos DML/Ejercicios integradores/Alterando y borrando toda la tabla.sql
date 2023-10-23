@@ -19,3 +19,5 @@ SELECT * FROM tb_producto;
 /*Aumentamos el valor de los precios en un 1.5*/
 UPDATE tb_producto2 SET PRECIO_LISTA = PRECIO_LISTA*1.15;
 
+DELETE FROM tb_producto2;
+
