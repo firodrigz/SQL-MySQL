@@ -17,5 +17,31 @@ AS LIMITE_CREDITO, VOLUMEN_DE_COMPRA AS VOLUMEN_COMPRA,
 PRIMERA_COMPRA FROM jugos_ventas.tabla_de_clientes
 WHERE DNI NOT IN (SELECT DNI FROM tb_cliente);
 
+/*Actualiza la dirección del cliente con el DNI 5840119709 Colocando como nueva dirección Jorge Emilio 23, barrio San Antonio, ciudad Guadalajara, Estado de Jalisco y el CP 44700000.*/
+UPDATE tb_cliente SET DIRECCION = "Jorge Emilio 23", BARRIO = "San Antonio", CIUDAD = "Guadalajara", ESTADO = "Jalisco",
+CP = "44700000" WHERE DNI = "5840119709";
+SELECT * FROM tb_cliente WHERE  DNI = "5840119709";
 
-SELECT * FROM tb_cliente;
+/*Podemos observar que los vendedores se encuentran en barrios asociados a ellos. Vamos a aumentar en 30% el volumen de compra de los clientes que tienen, en sus direcciones, barrios donde los vendedores cuentan con oficinas.*/
+UPDATE tb_cliente A 
+INNER JOIN 
+tb_vendedor B
+ON A.BARRIO = B.BARRIO
+SET A.VOLUMEN_COMPRA = A.VOLUMEN_COMPRA * 1.3;
+
+/*Vamos a excluir las facturas (Apenas el encabezado) cuyos clientes tengan menos de 18 años.*/
+DELETE A FROM tb_factura A
+INNER JOIN 
+tb_cliente B 
+ON A.DNI = B.DNI
+WHERE B.EDAD < 18;
+
+/*Construye un TRIGGER (Lo llamaremos TG_EDAD_CLIENTES_INSERT) que actualiza las edades de los clientes, en la tabla de clientes, siempre que la tabla sufra una inclusión.*/
+DELIMITER //
+CREATE TRIGGER TG_EDAD_CLIENTES_INSERT 
+BEFORE INSERT ON tb_cliente
+FOR EACH ROW BEGIN
+SET NEW.EDAD = timestampdiff(YEAR, NEW.FECHA_NACIMIENTO, NOW());
+END//
+
+SELECT DNI, EDAD, FECHA_NACIMIENTO, timestampdiff(YEAR, FECHA_NACIMIENTO, NOW()) AS ANOS FROM tb_cliente;
